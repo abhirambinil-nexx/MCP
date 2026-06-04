@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MCP Authentication System</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background: #f0f2f5;
+      }
+      .dashboard {
+        text-align: center;
+        background: white;
+        padding: 40px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .btn {
+        padding: 12px 24px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        margin-top: 15px;
+      }
+      .btn-logout {
+        background: #dc3545;
+      }
+
+      /* Modal Popup Back-curtain Styling */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      .modal-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .modal-card {
+        background: white;
+        width: 100%;
+        max-width: 400px;
+        padding: 35px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        transform: translateY(-30px);
+        transition: transform 0.3s ease;
+        position: relative;
+      }
+      .modal-overlay.active .modal-card {
+        transform: translateY(0);
+      }
+
+      .close-x {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 24px;
+        cursor: pointer;
+        color: #666;
+      }
+      .tabs {
+        display: flex;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #eee;
+      }
+      .tab {
+        flex: 1;
+        text-align: center;
+        padding: 12px;
+        cursor: pointer;
+        font-weight: bold;
+        color: #888;
+        transition: all 0.2s ease;
+      }
+      .tab.active {
+        color: #007bff;
+        border-bottom: 2px solid #007bff;
+      }
+      .hidden {
+        display: none !important;
+      }
+      #google-btn-wrapper {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+        min-height: 45px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard">
+      <h1>Welcome to MCP System</h1>
+      <p id="status-text">State: Logged Out</p>
+      <button class="btn" id="open-auth-btn">Sign In / Register</button>
+      <button class="btn btn-logout hidden" id="logout-btn">Log Out</button>
+    </div>
+
+    <div class="modal-overlay" id="auth-modal">
+      <div class="modal-card">
+        <span class="close-x" id="close-modal-btn">&times;</span>
+
+        <div class="tabs">
+          <div class="tab active" id="tab-login" onclick="switchTab('login')">
+            Sign In
+          </div>
+          <div class="tab" id="tab-signup" onclick="switchTab('signup')">
+            Sign Up
+          </div>
+        </div>
+
+        <div id="google-btn-wrapper">
+          <div id="google-signin-btn"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = "/api/auth";
+      let accessToken = null;
+      let refreshToken = null;
+
+      // 💡 Crucial Variable: Tracks if the user clicked "Sign In" or "Sign Up"
+      let authMode = "login";
+
+      // UI Element Selectors
+      const authModal = document.getElementById("auth-modal");
+      const openAuthBtn = document.getElementById("open-auth-btn");
+      const closeModalBtn = document.getElementById("close-modal-btn");
+      const logoutBtn = document.getElementById("logout-btn");
+      const statusText = document.getElementById("status-text");
+
+      openAuthBtn.onclick = () => authModal.classList.add("active");
+      closeModalBtn.onclick = () => authModal.classList.remove("active");
+
+      // Updates mode state toggle asynchronously when tabs are switched
+      function switchTab(mode) {
+        authMode = mode;
+        if (mode === "login") {
+          document.getElementById("tab-login").classList.add("active");
+          document.getElementById("tab-signup").classList.remove("active");
+        } else {
+          document.getElementById("tab-login").classList.remove("active");
+          document.getElementById("tab-signup").classList.add("active");
+        }
+      }
+
+      // Native Google Popup Setup
+      window.onload = function () {
+        google.accounts.id.initialize({
+          // Keeping your exact verified client ID target string intact
+          client_id:
+            "170637477735-tstmql1kajl8pgrhh6jld9p1avc6vura.apps.googleusercontent.com",
+          callback: handleGoogleCredentialResponse,
+        });
+
+        google.accounts.id.renderButton(
+          document.getElementById("google-signin-btn"),
+          {
+            theme: "outline",
+            size: "large",
+            width: "100%",
+            text: "continue_with", // Sets the explicit text style flag
+          },
+        );
+      };
+
+      // Handles the safe data payload pass back to Express Router
+      async function handleGoogleCredentialResponse(response) {
+        const res = await fetch(`${API_URL}/google`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          // 💡 Sends BOTH the token AND the state mode parameter (login/signup)
+          body: JSON.stringify({
+            idToken: response.credential,
+            mode: authMode,
+          }),
+        });
+        const data = await res.json();
+        if (res.ok) handleAuthSuccess(data);
+        else alert(data.error);
+      }
+
+      function handleAuthSuccess(data) {
+        accessToken = data.accessToken;
+        refreshToken = data.refreshToken;
+        authModal.classList.remove("active");
+        openAuthBtn.classList.add("hidden");
+        logoutBtn.classList.remove("hidden");
+        fetchProtectedProfile();
+      }
+
+      async function fetchProtectedProfile() {
+        const res = await fetch(`${API_URL}/profile`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (res.status === 403 || res.status === 401) {
+          const refreshed = await runTokenRotation();
+          if (refreshed) return fetchProtectedProfile();
+        }
+        const body = await res.json();
+        if (res.ok) {
+          statusText.innerText = `Logged in as: ${body.data.name} [Source: ${body.source}]`;
+        }
+      }
+
+      async function runTokenRotation() {
+        const res = await fetch(`${API_URL}/refresh`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refreshToken }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          accessToken = data.accessToken;
+          refreshToken = data.refreshToken;
+          return true;
+        } else {
+          logout();
+          return false;
+        }
+      }
+
+      logoutBtn.onclick = logout;
+      async function logout() {
+        await fetch(`${API_URL}/logout`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({ refreshToken }),
+        });
+        accessToken = null;
+        refreshToken = null;
+        statusText.innerText = "State: Logged Out";
+        openAuthBtn.classList.remove("hidden");
+        logoutBtn.classList.add("hidden");
+      }
+    </script>
+  </body>
+</html>

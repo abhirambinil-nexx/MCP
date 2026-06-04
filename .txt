@@ -1,0 +1,157 @@
+ backend/
+
+  - config/
+
+  - controllers/
+
+  - middleware/
+
+  - models/
+
+  - routes/
+
+  - services/
+
+  - utils/
+
+  - redis/
+
+  - mysql/
+
+- frontend/
+
+  - components/
+
+  - pages/
+
+  - hooks/
+
+  - services/
+
+  - context/
+
+  - routes/
+
+
+
+
+  Build a complete authentication system for the company   mcp for custom system.the work should from scrach 
+
+Tech stack:
+- Backend: Node.js, Express.js, MySQL, Redis,
+- Auth:  Google OAuth 2.0
+- Frontend: basic pop-up window of Google sign-up and login for this auth 
+
+Main goal:
+Create a clean, production-ready login/signup system with Google OAuth, email/password login, access token,token refresh, logout, protected routes, and a basic popup modal UI.
+
+Backend requirements:
+1. Created MySQL tables:
+   - users
+   - oauth_accounts
+   - refresh_tokens
+attached with this.
+
+2. users table should store:
+   - id
+   - email
+   - name
+   - username
+   - profile_picture
+   - email_verified
+   - account_status
+   - last_login_at
+   - created_at
+   - updated_at
+
+3. oauth_accounts table should store:
+   - id
+   - user_id
+   - provider
+   - provider_user_id
+   - provider_email
+   - linked_at
+   - created_at
+   - updated_at
+
+4. refresh_tokens table should store:
+   - id
+   - user_id
+   - token_hash
+   - expires_at
+   - revoked_at
+   - device_name
+   - ip_address
+   - user_agent
+   - created_at
+
+5. Implement the needed backend APIs. Explain and discuss it with  me.
+   
+6. Google OAuth flow:
+   - Frontend opens a popup window
+   - User signs in with Google
+   - Frontend gets Google ID token
+   - Send token to backend
+   - Backend verifies token using google-auth-library
+   - If user does not exist, create user
+   - If user exists, login user
+   - Save mapping in oauth_accounts
+   - Return access token and refresh token
+if there is other idea , suggest it to me simply
+
+7. Token system(suggest better idea or explain why that is much better)
+   - Access token should be short-lived, between 15 mins - 4 hrs in Redis 
+   - Refresh token should be long-lived, around 30 days
+   - Store only hashed refresh token in MySQL for better safety
+   - Add refresh token rotation ? explain what is it and why needed
+   - Add logout that revokes refresh token ? explaini thipa also
+   - Protect routes using access token middleware? explain why needed this? is it useful or not .
+
+8. Redis usage:
+   - Cache user data
+   - Store rate limit data
+   - Optionally store token blacklist or session support
+  -  store access_token  
+   - Use TTL properly in every ine 
+
+9. Security:
+   - Hash passwords using bcrypt ? do it have alternate one ? is that better or not?
+   - Use parameterized SQL queries? expain what's parameterized means?
+   - Validate all inputs? how 
+   - Handle expired tokens properly
+   - Prevent SQL injection, XSS, and bad requests? willn't it be to advance ?if not explain what is the process?
+   - Use CORS safely? explain more about CORS? why needed in backend ? how it can mak ethe work much better.
+
+Frontend requirements:
+1. Build a basic  login/register popup modal.
+2. The popup should include:
+   - Email and password login
+   - Name, email, password, confirm password for register/sign-up
+   - Continue with Google button
+   - Smooth open/close animation
+   - Mobile responsive design
+   - Clean basic html or jsx? which is better 
+
+3. Google login should open a popup window, not a full page redirect. a basic one
+
+Project structure:explain each structure needed for this ? how ? with small example
+
+Deliverables: ? what does it meand?
+- Full backend code
+- Full frontend code
+- SQL schema
+- Redis integration
+- JWT setup
+- Google OAuth setup
+- Popup login UI
+- Protected routes
+- Refresh token flow
+- Logout flow
+- Clear comments in code
+- Simple explanation of how everything works
+
+Important:
+- Keep the code modular and easy to understand
+- Use simple naming and proper
+- Write the code in a way that can be extended later for roles, permissions, and more OAuth providers
+- give step-by-step work for this project with the code ?explain do it have to add anything extra? 
