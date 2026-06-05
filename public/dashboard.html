@@ -1,0 +1,1241 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MCP — Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --ink: #0d0d0f;
+        --ink-muted: #6b6b7a;
+        --ink-faint: #c2c2cc;
+        --surface: #ffffff;
+        --surface-2: #f5f5f8;
+        --surface-3: #ededf2;
+        --accent: #5b4cf5;
+        --accent-light: rgba(91, 76, 245, 0.08);
+        --accent-2: #2dc78a;
+        --accent-2-light: rgba(45, 199, 138, 0.08);
+        --danger: #e8463a;
+        --danger-light: rgba(232, 70, 58, 0.08);
+        --border: rgba(0, 0, 0, 0.07);
+        --border-strong: rgba(0, 0, 0, 0.12);
+        --radius: 16px;
+        --radius-sm: 10px;
+        --radius-xs: 6px;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+        font-family: "Sora", sans-serif;
+        background: var(--surface-2);
+        color: var(--ink);
+      }
+
+      /* Sidebar */
+      .layout {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem 1rem;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+      }
+
+      .sidebar-logo {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.4rem 0.75rem;
+        margin-bottom: 2rem;
+      }
+
+      .logo-mark {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .logo-mark svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .logo-text {
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+      }
+
+      .nav-section-label {
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--ink-faint);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 0 0.75rem;
+        margin-bottom: 0.4rem;
+        margin-top: 1rem;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.55rem 0.75rem;
+        border-radius: var(--radius-xs);
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--ink-muted);
+        cursor: pointer;
+        text-decoration: none;
+        transition:
+          background 0.12s,
+          color 0.12s;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+      }
+
+      .nav-item:hover {
+        background: var(--surface-2);
+        color: var(--ink);
+      }
+
+      .nav-item.active {
+        background: var(--accent-light);
+        color: var(--accent);
+      }
+
+      .nav-item svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+
+      .sidebar-spacer {
+        flex: 1;
+      }
+
+      .sidebar-user {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.6rem 0.75rem;
+        border-radius: var(--radius-sm);
+        background: var(--surface-2);
+        margin-top: 0.5rem;
+      }
+
+      .sidebar-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: white;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+
+      .sidebar-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .sidebar-user-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .sidebar-user-name {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--ink);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sidebar-user-role {
+        font-size: 0.72rem;
+        color: var(--ink-muted);
+      }
+
+      /* Main content */
+      .main {
+        padding: 2.5rem 2rem;
+        max-width: 860px;
+      }
+
+      .page-header {
+        margin-bottom: 2rem;
+        animation: fadeUp 0.4s ease both;
+      }
+
+      .page-header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        color: var(--ink);
+        margin-bottom: 0.3rem;
+      }
+
+      .page-header p {
+        font-size: 0.875rem;
+        color: var(--ink-muted);
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Profile card */
+      .profile-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        animation: fadeUp 0.4s 0.05s ease both;
+      }
+
+      .profile-banner {
+        height: 90px;
+        background: linear-gradient(120deg, #5b4cf5 0%, #2dc78a 100%);
+        position: relative;
+      }
+
+      .profile-banner-pattern {
+        position: absolute;
+        inset: 0;
+        background-image:
+          radial-gradient(
+            circle at 20% 50%,
+            rgba(255, 255, 255, 0.15) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 30%,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 40%
+          );
+      }
+
+      .profile-body {
+        padding: 0 1.75rem 1.75rem;
+      }
+
+      .profile-avatar-wrap {
+        position: relative;
+        display: inline-block;
+        transform: translateY(-28px);
+        margin-bottom: -20px;
+      }
+
+      .profile-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        border: 3px solid var(--surface);
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: white;
+        overflow: hidden;
+      }
+
+      .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .profile-status-dot {
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--accent-2);
+        border: 2px solid var(--surface);
+      }
+
+      .profile-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+        margin-bottom: 0.2rem;
+      }
+
+      .profile-username {
+        font-size: 0.85rem;
+        color: var(--ink-muted);
+        font-family: "JetBrains Mono", monospace;
+        margin-bottom: 1.25rem;
+      }
+
+      /* Info grid */
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .info-field {
+        background: var(--surface-2);
+        border-radius: var(--radius-sm);
+        padding: 0.85rem 1rem;
+      }
+
+      .info-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--ink-faint);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .info-label svg {
+        width: 11px;
+        height: 11px;
+      }
+
+      .info-value {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--ink);
+        word-break: break-all;
+      }
+
+      .info-value.mono {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.82rem;
+      }
+
+      /* Badges */
+      .badge-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1.25rem;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      .badge-green {
+        background: var(--accent-2-light);
+        color: #1a7a56;
+      }
+
+      .badge-purple {
+        background: var(--accent-light);
+        color: #4237c2;
+      }
+
+      .badge-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+      }
+
+      .badge-green .badge-dot {
+        background: var(--accent-2);
+      }
+      .badge-purple .badge-dot {
+        background: var(--accent);
+      }
+
+      /* Stats row */
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        animation: fadeUp 0.4s 0.1s ease both;
+      }
+
+      .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.25rem;
+      }
+
+      .stat-label {
+        font-size: 0.75rem;
+        color: var(--ink-muted);
+        margin-bottom: 0.4rem;
+      }
+
+      .stat-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        color: var(--ink);
+      }
+
+      .stat-sub {
+        font-size: 0.72rem;
+        color: var(--ink-faint);
+        margin-top: 0.2rem;
+      }
+
+      /* Action section */
+      .action-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 1.5rem 1.75rem;
+        animation: fadeUp 0.4s 0.15s ease both;
+      }
+
+      .action-header {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 1rem;
+      }
+
+      .action-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .action-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.8rem 1rem;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        cursor: pointer;
+        transition:
+          background 0.12s,
+          border-color 0.12s;
+        background: none;
+        width: 100%;
+        text-align: left;
+        font-family: "Sora", sans-serif;
+        text-decoration: none;
+      }
+
+      .action-item:hover {
+        background: var(--surface-2);
+        border-color: var(--border-strong);
+      }
+
+      .action-item.danger {
+        border-color: transparent;
+      }
+      .action-item.danger:hover {
+        background: var(--danger-light);
+        border-color: rgba(232, 70, 58, 0.15);
+      }
+
+      .action-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .action-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: var(--radius-xs);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .action-icon.neutral {
+        background: var(--surface-3);
+      }
+      .action-icon.red {
+        background: var(--danger-light);
+      }
+      .action-icon svg {
+        width: 15px;
+        height: 15px;
+      }
+      .action-icon.neutral svg {
+        color: var(--ink-muted);
+      }
+      .action-icon.red svg {
+        color: var(--danger);
+      }
+
+      .action-title {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--ink);
+      }
+
+      .action-item.danger .action-title {
+        color: var(--danger);
+      }
+
+      .action-desc {
+        font-size: 0.775rem;
+        color: var(--ink-muted);
+      }
+
+      .action-item.danger .action-desc {
+        color: rgba(232, 70, 58, 0.6);
+      }
+
+      .action-arrow {
+        color: var(--ink-faint);
+      }
+      .action-arrow svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      /* Logout confirm overlay */
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+
+      .overlay.show {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .dialog {
+        background: var(--surface);
+        border-radius: 20px;
+        padding: 2rem;
+        max-width: 360px;
+        width: 90%;
+        text-align: center;
+        transform: scale(0.95);
+        transition: transform 0.2s cubic-bezier(0.34, 1.3, 0.64, 1);
+      }
+
+      .overlay.show .dialog {
+        transform: scale(1);
+      }
+
+      .dialog-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: var(--danger-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+      }
+
+      .dialog-icon svg {
+        width: 24px;
+        height: 24px;
+        color: var(--danger);
+      }
+
+      .dialog h3 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.4rem;
+      }
+
+      .dialog p {
+        font-size: 0.85rem;
+        color: var(--ink-muted);
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+      }
+
+      .dialog-btns {
+        display: flex;
+        gap: 0.75rem;
+      }
+
+      .btn-cancel,
+      .btn-logout {
+        flex: 1;
+        padding: 0.7rem;
+        border-radius: var(--radius-sm);
+        font-family: "Sora", sans-serif;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition:
+          opacity 0.12s,
+          transform 0.12s;
+      }
+
+      .btn-cancel {
+        background: var(--surface-2);
+        color: var(--ink);
+      }
+
+      .btn-logout {
+        background: var(--danger);
+        color: white;
+      }
+
+      .btn-cancel:hover {
+        opacity: 0.8;
+      }
+      .btn-logout:hover {
+        opacity: 0.9;
+      }
+      .btn-cancel:active,
+      .btn-logout:active {
+        transform: scale(0.97);
+      }
+
+      /* Mobile */
+      @media (max-width: 720px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .sidebar {
+          position: static;
+          height: auto;
+          flex-direction: row;
+          flex-wrap: wrap;
+          padding: 1rem;
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .sidebar-logo {
+          margin-bottom: 0;
+        }
+        .sidebar-spacer {
+          display: none;
+        }
+        .sidebar-user {
+          display: none;
+        }
+        .nav-section-label {
+          display: none;
+        }
+        .nav-item {
+          padding: 0.4rem 0.6rem;
+        }
+        .main {
+          padding: 1.5rem 1rem;
+        }
+        .info-grid {
+          grid-template-columns: 1fr;
+        }
+        .stats-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-mark">
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect x="2" y="2" width="5" height="5" rx="1.5" fill="white" />
+              <rect
+                x="9"
+                y="2"
+                width="5"
+                height="5"
+                rx="1.5"
+                fill="rgba(255,255,255,0.5)"
+              />
+              <rect
+                x="2"
+                y="9"
+                width="5"
+                height="5"
+                rx="1.5"
+                fill="rgba(255,255,255,0.5)"
+              />
+              <rect x="9" y="9" width="5" height="5" rx="1.5" fill="white" />
+            </svg>
+          </div>
+          <span class="logo-text">MCP</span>
+        </div>
+
+        <span class="nav-section-label">Menu</span>
+
+        <a href="#" class="nav-item active">
+          <svg viewBox="0 0 16 16" fill="none">
+            <rect
+              x="1"
+              y="1"
+              width="6"
+              height="6"
+              rx="1.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <rect
+              x="9"
+              y="1"
+              width="6"
+              height="6"
+              rx="1.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <rect
+              x="1"
+              y="9"
+              width="6"
+              height="6"
+              rx="1.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <rect
+              x="9"
+              y="9"
+              width="6"
+              height="6"
+              rx="1.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+          </svg>
+          Dashboard
+        </a>
+
+        <a href="#" class="nav-item">
+          <svg viewBox="0 0 16 16" fill="none">
+            <circle
+              cx="8"
+              cy="5.5"
+              r="2.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <path
+              d="M2 13c0-2.761 2.686-5 6-5s6 2.239 6 5"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+          </svg>
+          Profile
+        </a>
+
+        <a href="#" class="nav-item">
+          <svg viewBox="0 0 16 16" fill="none">
+            <circle
+              cx="8"
+              cy="8"
+              r="2"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <path
+              d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+          </svg>
+          Settings
+        </a>
+
+        <div class="sidebar-spacer"></div>
+
+        <div class="sidebar-user">
+          <div class="sidebar-avatar" id="sidebarAvatar">
+            <span id="sidebarInitials">U</span>
+          </div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebarName">User</div>
+            <div class="sidebar-user-role">Member</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <main class="main">
+        <div class="page-header">
+          <h1>Your Profile</h1>
+          <p>Manage your account details and preferences</p>
+        </div>
+
+        <!-- Profile card -->
+        <div class="profile-card">
+          <div class="profile-banner">
+            <div class="profile-banner-pattern"></div>
+          </div>
+          <div class="profile-body">
+            <div class="profile-avatar-wrap">
+              <div class="profile-avatar" id="profileAvatar">
+                <span id="profileInitials">U</span>
+              </div>
+              <div class="profile-status-dot"></div>
+            </div>
+
+            <div class="profile-name" id="profileName">Loading...</div>
+            <div class="profile-username" id="profileUsername">@username</div>
+
+            <div class="info-grid">
+              <div class="info-field">
+                <div class="info-label">
+                  <svg viewBox="0 0 12 12" fill="none">
+                    <path
+                      d="M1 3l5 3.5L11 3M1 3h10v7H1z"
+                      stroke="currentColor"
+                      stroke-width="1.2"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  Email
+                </div>
+                <div class="info-value mono" id="infoEmail">—</div>
+              </div>
+
+              <div class="info-field">
+                <div class="info-label">
+                  <svg viewBox="0 0 12 12" fill="none">
+                    <circle
+                      cx="6"
+                      cy="4"
+                      r="2"
+                      stroke="currentColor"
+                      stroke-width="1.2"
+                    />
+                    <path
+                      d="M1 11c0-2.21 2.239-4 5-4s5 1.79 5 4"
+                      stroke="currentColor"
+                      stroke-width="1.2"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Full Name
+                </div>
+                <div class="info-value" id="infoName">—</div>
+              </div>
+
+              <div class="info-field">
+                <div class="info-label">
+                  <svg viewBox="0 0 12 12" fill="none">
+                    <path
+                      d="M2 2h8a1 1 0 011 1v6a1 1 0 01-1 1H2a1 1 0 01-1-1V3a1 1 0 011-1z"
+                      stroke="currentColor"
+                      stroke-width="1.2"
+                    />
+                    <path
+                      d="M4 5h4M4 7h2"
+                      stroke="currentColor"
+                      stroke-width="1.2"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Username
+                </div>
+                <div class="info-value mono" id="infoUsername">—</div>
+              </div>
+
+              <div class="info-field">
+                <div class="info-label">
+                  <svg viewBox="0 0 12 12" fill="none">
+                    <circle
+                      cx="6"
+                      cy="6"
+                      r="5"
+                      stroke="currentColor"
+                      stroke-width="1.2"
+                    />
+                    <path
+                      d="M6 3v3l2 1"
+                      stroke="currentColor"
+                      stroke-width="1.2"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Member Since
+                </div>
+                <div class="info-value" id="infoJoined">—</div>
+              </div>
+            </div>
+
+            <div class="badge-row">
+              <span class="badge badge-green">
+                <span class="badge-dot"></span>
+                Active
+              </span>
+              <span class="badge badge-purple" id="authBadge">
+                <span class="badge-dot"></span>
+                Google OAuth
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-label">Account Status</div>
+            <div
+              class="stat-value"
+              style="color: var(--accent-2); font-size: 1.1rem"
+            >
+              Active
+            </div>
+            <div class="stat-sub">Email verified</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Last Login</div>
+            <div class="stat-value" style="font-size: 1rem" id="statLastLogin">
+              Just now
+            </div>
+            <div class="stat-sub">This session</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Auth Provider</div>
+            <div class="stat-value" style="font-size: 1rem" id="statProvider">
+              Google
+            </div>
+            <div class="stat-sub">OAuth 2.0</div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="action-card">
+          <div class="action-header">Account Actions</div>
+          <div class="action-list">
+            <a href="#" class="action-item">
+              <div class="action-left">
+                <div class="action-icon neutral">
+                  <svg viewBox="0 0 15 15" fill="none">
+                    <circle
+                      cx="7.5"
+                      cy="5"
+                      r="2.5"
+                      stroke="currentColor"
+                      stroke-width="1.3"
+                    />
+                    <path
+                      d="M1.5 13c0-2.485 2.686-4.5 6-4.5s6 2.015 6 4.5"
+                      stroke="currentColor"
+                      stroke-width="1.3"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <div class="action-title">Edit Profile</div>
+                  <div class="action-desc">
+                    Update your name, username, and photo
+                  </div>
+                </div>
+              </div>
+              <div class="action-arrow">
+                <svg viewBox="0 0 14 14" fill="none">
+                  <path
+                    d="M5 3l4 4-4 4"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+            </a>
+
+            <a href="#" class="action-item">
+              <div class="action-left">
+                <div class="action-icon neutral">
+                  <svg viewBox="0 0 15 15" fill="none">
+                    <rect
+                      x="3"
+                      y="6"
+                      width="9"
+                      height="7"
+                      rx="1.5"
+                      stroke="currentColor"
+                      stroke-width="1.3"
+                    />
+                    <path
+                      d="M5 6V4.5a2.5 2.5 0 115 0V6"
+                      stroke="currentColor"
+                      stroke-width="1.3"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <div class="action-title">Security</div>
+                  <div class="action-desc">
+                    Manage passwords and connected apps
+                  </div>
+                </div>
+              </div>
+              <div class="action-arrow">
+                <svg viewBox="0 0 14 14" fill="none">
+                  <path
+                    d="M5 3l4 4-4 4"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+            </a>
+
+            <button class="action-item danger" id="logoutBtn">
+              <div class="action-left">
+                <div class="action-icon red">
+                  <svg viewBox="0 0 15 15" fill="none">
+                    <path
+                      d="M6 2H3a1 1 0 00-1 1v9a1 1 0 001 1h3M10 10l3-2.5M10 5l3 2.5M13 7.5H6"
+                      stroke="currentColor"
+                      stroke-width="1.3"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <div class="action-title">Sign Out</div>
+                  <div class="action-desc">End your current session</div>
+                </div>
+              </div>
+              <div class="action-arrow">
+                <svg viewBox="0 0 14 14" fill="none">
+                  <path
+                    d="M5 3l4 4-4 4"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Logout confirm dialog -->
+    <div class="overlay" id="logoutOverlay">
+      <div class="dialog">
+        <div class="dialog-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h4M16 17l5-5-5-5M21 12H9"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
+        <h3>Sign out of MCP?</h3>
+        <p>You'll need to sign in again to access your account.</p>
+        <div class="dialog-btns">
+          <button class="btn-cancel" id="cancelLogout">Cancel</button>
+          <button class="btn-logout" id="confirmLogout">Sign Out</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = ""; // same origin — adjust if needed
+
+      function loadUser() {
+        const raw =
+          localStorage.getItem("mcp_user") ||
+          sessionStorage.getItem("mcp_user");
+        if (!raw) return null;
+        try {
+          return JSON.parse(raw);
+        } catch {
+          return null;
+        }
+      }
+
+      function getInitials(name) {
+        if (!name) return "U";
+        const parts = name.trim().split(/\s+/);
+        if (parts.length >= 2)
+          return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        return name.substring(0, 2).toUpperCase();
+      }
+
+      function formatDate(iso) {
+        if (!iso) return "—";
+        return new Date(iso).toLocaleDateString("en-US", {
+          month: "short",
+          year: "numeric",
+          day: "numeric",
+        });
+      }
+
+      function setAvatar(el, user) {
+        if (user.profile_picture) {
+          el.innerHTML = `<img src="${user.profile_picture}" alt="${user.name || ""}" />`;
+        }
+      }
+
+      // Populate UI from stored user
+      const user = loadUser();
+
+      if (!user) {
+        // Not logged in — redirect to login
+        window.location.href = "/index.html";
+      } else {
+        const initials = getInitials(user.name);
+
+        // Sidebar
+        document.getElementById("sidebarName").textContent =
+          user.name || "User";
+        const sidebarAvatar = document.getElementById("sidebarAvatar");
+        document.getElementById("sidebarInitials").textContent = initials;
+        setAvatar(sidebarAvatar, user);
+
+        // Profile
+        document.getElementById("profileName").textContent =
+          user.name || "User";
+        document.getElementById("profileUsername").textContent = user.username
+          ? `@${user.username}`
+          : `@${(user.email || "").split("@")[0]}`;
+        document.getElementById("profileInitials").textContent = initials;
+        setAvatar(document.getElementById("profileAvatar"), user);
+
+        // Info fields
+        document.getElementById("infoEmail").textContent = user.email || "—";
+        document.getElementById("infoName").textContent = user.name || "—";
+        document.getElementById("infoUsername").textContent =
+          user.username || (user.email || "").split("@")[0] || "—";
+        document.getElementById("infoJoined").textContent = formatDate(
+          user.created_at,
+        );
+
+        // Stats
+        document.getElementById("statLastLogin").textContent =
+          user.last_login_at ? formatDate(user.last_login_at) : "Just now";
+        if (user.provider) {
+          document.getElementById("statProvider").textContent =
+            user.provider.charAt(0).toUpperCase() + user.provider.slice(1);
+          document.getElementById("authBadge").innerHTML =
+            `<span class="badge-dot"></span>${document.getElementById("statProvider").textContent} OAuth`;
+        }
+      }
+
+      // Logout flow
+      const overlay = document.getElementById("logoutOverlay");
+      const logoutBtn = document.getElementById("logoutBtn");
+      const cancelBtn = document.getElementById("cancelLogout");
+      const confirmBtn = document.getElementById("confirmLogout");
+
+      logoutBtn.addEventListener("click", () => overlay.classList.add("show"));
+      cancelBtn.addEventListener("click", () =>
+        overlay.classList.remove("show"),
+      );
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) overlay.classList.remove("show");
+      });
+
+      confirmBtn.addEventListener("click", async () => {
+        confirmBtn.textContent = "Signing out...";
+        confirmBtn.disabled = true;
+        try {
+          const token =
+            localStorage.getItem("mcp_access_token") ||
+            sessionStorage.getItem("mcp_access_token");
+          await fetch(`${API_BASE}/api/auth/logout`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            credentials: "include",
+          });
+        } catch (e) {
+          console.warn("Logout API failed, clearing local state anyway.");
+        }
+        // Clear all auth data
+        ["mcp_user", "mcp_access_token", "mcp_refresh_token"].forEach((k) => {
+          localStorage.removeItem(k);
+          sessionStorage.removeItem(k);
+        });
+        window.location.href = "/index.html";
+      });
+    </script>
+  </body>
+</html>

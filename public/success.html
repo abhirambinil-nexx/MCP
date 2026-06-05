@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MCP — Welcome</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --ink: #0d0d0f;
+        --ink-muted: #6b6b7a;
+        --ink-faint: #a9a9b8;
+        --surface: #ffffff;
+        --surface-2: #f5f5f8;
+        --surface-3: #ebebf0;
+        --accent: #5b4cf5;
+        --accent-glow: rgba(91, 76, 245, 0.15);
+        --accent-2: #2dc78a;
+        --accent-2-glow: rgba(45, 199, 138, 0.15);
+        --border: rgba(0, 0, 0, 0.08);
+        --radius: 16px;
+        --radius-sm: 8px;
+      }
+
+      html,
+      body {
+        height: 100%;
+        font-family: "Sora", sans-serif;
+        background: var(--surface);
+        color: var(--ink);
+        overflow: hidden;
+      }
+
+      .bg-grid {
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(91, 76, 245, 0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(91, 76, 245, 0.04) 1px, transparent 1px);
+        background-size: 40px 40px;
+        animation: gridDrift 20s linear infinite;
+      }
+
+      @keyframes gridDrift {
+        0% {
+          transform: translate(0, 0);
+        }
+        100% {
+          transform: translate(40px, 40px);
+        }
+      }
+
+      .bg-orb-1 {
+        position: fixed;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(91, 76, 245, 0.12) 0%,
+          transparent 70%
+        );
+        top: -100px;
+        left: -100px;
+        animation: float1 8s ease-in-out infinite;
+      }
+      .bg-orb-2 {
+        position: fixed;
+        width: 400px;
+        height: 400px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(45, 199, 138, 0.1) 0%,
+          transparent 70%
+        );
+        bottom: -80px;
+        right: -80px;
+        animation: float2 10s ease-in-out infinite;
+      }
+
+      @keyframes float1 {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(30px, 30px);
+        }
+      }
+      @keyframes float2 {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(-20px, -20px);
+        }
+      }
+
+      .page {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 2rem;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 3rem 3.5rem;
+        max-width: 440px;
+        width: 100%;
+        text-align: center;
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.04),
+          0 24px 48px rgba(0, 0, 0, 0.06);
+        animation: cardIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+
+      @keyframes cardIn {
+        from {
+          opacity: 0;
+          transform: translateY(32px) scale(0.97);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .icon-wrap {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: var(--accent-2-glow);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.75rem;
+        animation: iconPop 0.6s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      }
+
+      @keyframes iconPop {
+        from {
+          opacity: 0;
+          transform: scale(0.4);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .checkmark {
+        width: 36px;
+        height: 36px;
+      }
+      .checkmark-circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        animation: strokeDraw 0.6s 0.6s ease forwards;
+      }
+      .checkmark-check {
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        animation: strokeDraw 0.4s 1s ease forwards;
+      }
+
+      @keyframes strokeDraw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      h1 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        color: var(--ink);
+        margin-bottom: 0.6rem;
+        animation: fadeUp 0.5s 0.5s ease both;
+      }
+
+      .subtitle {
+        font-size: 0.95rem;
+        color: var(--ink-muted);
+        line-height: 1.6;
+        margin-bottom: 2rem;
+        animation: fadeUp 0.5s 0.6s ease both;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .user-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 0.4rem 1rem 0.4rem 0.4rem;
+        margin-bottom: 2rem;
+        animation: fadeUp 0.5s 0.7s ease both;
+      }
+
+      .chip-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: white;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+
+      .chip-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .chip-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .chip-email {
+        font-size: 0.78rem;
+        color: var(--ink-muted);
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      .redirect-bar {
+        position: relative;
+        background: var(--surface-2);
+        border-radius: var(--radius-sm);
+        padding: 0.9rem 1rem;
+        margin-bottom: 1.5rem;
+        animation: fadeUp 0.5s 0.8s ease both;
+        overflow: hidden;
+      }
+
+      .redirect-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 2px;
+        background: var(--accent);
+        border-radius: 1px;
+        animation: progress 3s 1.2s linear forwards;
+      }
+
+      @keyframes progress {
+        from {
+          width: 0%;
+        }
+        to {
+          width: 100%;
+        }
+      }
+
+      .redirect-text {
+        font-size: 0.82rem;
+        color: var(--ink-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        justify-content: center;
+      }
+
+      .redirect-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+        animation: blink 1s ease-in-out infinite;
+      }
+
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      .btn {
+        display: block;
+        width: 100%;
+        padding: 0.85rem 1.5rem;
+        background: var(--accent);
+        color: white;
+        font-family: "Sora", sans-serif;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border: none;
+        border-radius: var(--radius);
+        cursor: pointer;
+        text-decoration: none;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s,
+          opacity 0.15s;
+        animation: fadeUp 0.5s 0.9s ease both;
+        letter-spacing: -0.01em;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(91, 76, 245, 0.3);
+      }
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--accent-2-glow);
+        color: #1a8c61;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 999px;
+        margin-bottom: 1.2rem;
+        animation: fadeUp 0.5s 0.4s ease both;
+      }
+
+      .status-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--accent-2);
+      }
+
+      .logo {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--ink-faint);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 2.5rem;
+        animation: fadeUp 0.5s 0.2s ease both;
+      }
+
+      @media (max-width: 480px) {
+        .card {
+          padding: 2rem 1.5rem;
+        }
+        h1 {
+          font-size: 1.4rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-grid"></div>
+    <div class="bg-orb-1"></div>
+    <div class="bg-orb-2"></div>
+
+    <div class="page">
+      <div class="card">
+        <div class="logo">MCP Platform</div>
+
+        <div class="icon-wrap">
+          <svg
+            class="checkmark"
+            viewBox="0 0 52 52"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle
+              class="checkmark-circle"
+              cx="26"
+              cy="26"
+              r="25"
+              fill="none"
+              stroke="#2dc78a"
+              stroke-width="2"
+            />
+            <path
+              class="checkmark-check"
+              d="M14 27l8 8 16-16"
+              fill="none"
+              stroke="#2dc78a"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
+
+        <div class="status-badge">
+          <span class="status-dot"></span>
+          Authenticated
+        </div>
+
+        <h1 id="greeting">Welcome back!</h1>
+        <p class="subtitle" id="subtext">
+          You've successfully signed in to your MCP account.
+        </p>
+
+        <div class="user-chip" id="userChip" style="display: none">
+          <div class="chip-avatar" id="chipAvatar">
+            <span id="chipInitials">U</span>
+          </div>
+          <div>
+            <div class="chip-name" id="chipName">User</div>
+            <div class="chip-email" id="chipEmail">user@example.com</div>
+          </div>
+        </div>
+
+        <div class="redirect-bar">
+          <div class="redirect-progress"></div>
+          <div class="redirect-text">
+            <span class="redirect-dot"></span>
+            Redirecting to your dashboard in 3 seconds...
+          </div>
+        </div>
+
+        <a href="/dashboard.html" class="btn">Go to Dashboard →</a>
+      </div>
+    </div>
+
+    <script>
+      function loadUser() {
+        const raw =
+          localStorage.getItem("mcp_user") ||
+          sessionStorage.getItem("mcp_user");
+        if (!raw) return null;
+        try {
+          return JSON.parse(raw);
+        } catch {
+          return null;
+        }
+      }
+
+      function getInitials(name) {
+        if (!name) return "U";
+        const parts = name.trim().split(/\s+/);
+        if (parts.length >= 2)
+          return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        return name.substring(0, 2).toUpperCase();
+      }
+
+      const user = loadUser();
+      if (user) {
+        const isNewUser = !!user.isNew;
+        document.getElementById("greeting").textContent = isNewUser
+          ? `Welcome, ${user.name || "there"}!`
+          : `Welcome back, ${user.name || "there"}!`;
+        document.getElementById("subtext").textContent = isNewUser
+          ? "Your MCP account has been created successfully."
+          : "You've successfully signed back in to your MCP account.";
+
+        const chip = document.getElementById("userChip");
+        chip.style.display = "inline-flex";
+        document.getElementById("chipName").textContent = user.name || "User";
+        document.getElementById("chipEmail").textContent = user.email || "";
+
+        const avatarEl = document.getElementById("chipAvatar");
+        if (user.profile_picture) {
+          avatarEl.innerHTML = `<img src="${user.profile_picture}" alt="${user.name}" />`;
+        } else {
+          document.getElementById("chipInitials").textContent = getInitials(
+            user.name,
+          );
+        }
+      }
+
+      // Auto-redirect after 3s
+      setTimeout(() => {
+        window.location.href = "/dashboard.html";
+      }, 3000);
+    </script>
+  </body>
+</html>

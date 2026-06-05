@@ -170,25 +170,30 @@
         }
       }
 
-      // Native Google Popup Setup
       window.onload = function () {
+        // Initialize the Google client once on page boot
         google.accounts.id.initialize({
-          // Keeping your exact verified client ID target string intact
           client_id:
             "170637477735-tstmql1kajl8pgrhh6jld9p1avc6vura.apps.googleusercontent.com",
           callback: handleGoogleCredentialResponse,
         });
 
-        google.accounts.id.renderButton(
-          document.getElementById("google-signin-btn"),
-          {
-            theme: "outline",
-            size: "large",
-            width: "100%",
-            text: "continue_with", // Sets the explicit text style flag
-          },
-        );
+        // Render the initial button state
+        renderDynamicGoogleButton("signin_with");
       };
+
+      // 💡 New helper function to clear and redraw the button layout on demand
+      function renderDynamicGoogleButton(buttonTextType) {
+        const container = document.getElementById("google-signin-btn");
+        container.innerHTML = ""; // Clear the old button style layout entirely
+
+        google.accounts.id.renderButton(container, {
+          theme: "outline",
+          size: "large",
+          width: "100%",
+          text: buttonTextType, // Can be 'signin_with' or 'signup_with'
+        });
+      }
 
       // Handles the safe data payload pass back to Express Router
       async function handleGoogleCredentialResponse(response) {
@@ -207,14 +212,20 @@
       }
 
       function handleAuthSuccess(data) {
-        accessToken = data.accessToken;
-        refreshToken = data.refreshToken;
-        authModal.classList.remove("active");
-        openAuthBtn.classList.add("hidden");
-        logoutBtn.classList.remove("hidden");
-        fetchProtectedProfile();
-      }
+        // Save all auth data for success + dashboard pages
+        localStorage.setItem(
+          "mcp_user",
+          JSON.stringify({
+            ...data.user,
+            isNew: data.isNewUser,
+          }),
+        );
+        localStorage.setItem("mcp_access_token", data.accessToken);
+        localStorage.setItem("mcp_refresh_token", data.refreshToken);
 
+        // Redirect to success page (auto-redirects to dashboard after 3s)
+        window.location.href = "/success.html";
+      }
       async function fetchProtectedProfile() {
         const res = await fetch(`${API_URL}/profile`, {
           headers: { Authorization: `Bearer ${accessToken}` },

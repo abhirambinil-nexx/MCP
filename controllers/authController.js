@@ -2,6 +2,7 @@ import db from "../config/db.js";
 import redisClient from "../config/redis.js";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
+import { v7 as uuidv7 } from "uuid";
 import crypto from "crypto";
 
 import { googleClient, client_id } from "../config/google.js";
@@ -46,7 +47,6 @@ export const googleAuth = async (req, res) => {
       'SELECT user_id FROM oauth_accounts WHERE provider = "google" AND provider_user_id = ?',
       [googleId],
     );
-
     if (oauthAccounts.length > 0) {
       if (mode === "signup") {
         return res
@@ -70,7 +70,7 @@ export const googleAuth = async (req, res) => {
         userId = users[0].id;
       } else {
         // Completely new user account creation
-        userId = uuidv4();
+        userId = uuidv7();
         const username = email.split("@")[0] + Math.floor(Math.random() * 1000);
         await db.execute(
           "INSERT INTO users (id, email, name, username, profile_picture, email_verified) VALUES (?, ?, ?, ?, ?, true)",
@@ -80,7 +80,7 @@ export const googleAuth = async (req, res) => {
       // Add mapping entry to oauth_accounts
       await db.execute(
         'INSERT INTO oauth_accounts (id, user_id, provider, provider_user_id, provider_email) VALUES (?, ?, "google", ?, ?)',
-        [uuidv4(), userId, googleId, email],
+        [uuidv7(), userId, googleId, email],
       );
     }
 
@@ -91,7 +91,7 @@ export const googleAuth = async (req, res) => {
     await db.execute(
       "INSERT INTO refresh_tokens (id, user_id, token_hash, expires_at, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?)",
       [
-        uuidv4(),
+        uuidv7(),
         userId,
         hashedRefresh,
         expiresAt,
@@ -113,7 +113,21 @@ export const googleAuth = async (req, res) => {
       );
     }
 
-    res.json({ accessToken, refreshToken });
+    res.json({
+      accessToken,
+      refreshToken,
+      isNewUser: oauthAccounts.length === 0,
+      user: {
+        id: freshUserObj[0].id,
+        name: freshUserObj[0].name,
+        email: freshUserObj[0].email,
+        username: freshUserObj[0].username,
+        profile_picture: freshUserObj[0].profile_picture,
+        created_at: freshUserObj[0].created_at,
+        last_login_at: freshUserObj[0].last_login_at,
+        provider: "google",
+      },
+    });
   } catch (err) {
     res
       .status(401)
@@ -158,7 +172,7 @@ export const refresh = async (req, res) => {
     await db.execute(
       "INSERT INTO refresh_tokens (id, user_id, token_hash, expires_at, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?)",
       [
-        uuidv4(),
+        uuidv7(),
         decoded.userId,
         newHashedRefresh,
         expiresAt,
@@ -202,7 +216,9 @@ export const logout = async (req, res) => {
 export const getProfile = async (req, res) => {
   try {
     // Try getting profile data straight from optimized Redis cache first
-    const cachedUser = await redisClient.get(`userprofile:${req.user.name}${req.user.userId}`);
+    const cachedUser = await redisClient.get(
+      `userprofile:${req.user.name}${req.user.userId}`,
+    );
     if (cachedUser)
       return res.json({ source: "cache", data: JSON.parse(cachedUser) });
 
