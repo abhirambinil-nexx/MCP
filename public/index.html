@@ -65,12 +65,13 @@
         background: white;
         width: 100%;
         max-width: 400px;
-        padding: 35px;
+        padding: 40px 35px;
         border-radius: 12px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         transform: translateY(-30px);
         transition: transform 0.3s ease;
         position: relative;
+        text-align: center;
       }
       .modal-overlay.active .modal-card {
         transform: translateY(0);
@@ -84,27 +85,27 @@
         cursor: pointer;
         color: #666;
       }
-      .tabs {
-        display: flex;
-        margin-bottom: 30px;
-        border-bottom: 2px solid #eee;
+
+      .modal-title {
+        margin-bottom: 20px;
+        color: #333;
+        font-size: 20px;
       }
-      .tab {
-        flex: 1;
-        text-align: center;
-        padding: 12px;
-        cursor: pointer;
-        font-weight: bold;
-        color: #888;
-        transition: all 0.2s ease;
-      }
-      .tab.active {
-        color: #007bff;
-        border-bottom: 2px solid #007bff;
-      }
+
       .hidden {
         display: none !important;
       }
+      .logname {
+        font-family:
+          "Segoe UI Black", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-weight: 900;
+        font-size: 30px;
+        color: #000000;
+        text-transform: uppercase;
+        letter-spacing: -0.2px;
+        margin: 0;
+      }
+
       #google-btn-wrapper {
         display: flex;
         justify-content: center;
@@ -115,8 +116,7 @@
   </head>
   <body>
     <div class="dashboard">
-      <h1>Welcome to MCP System</h1>
-      <p id="status-text">State: Logged Out</p>
+      <h1 class="logname">LOGIN/REGISTER</h1>
       <button class="btn" id="open-auth-btn">Sign In / Register</button>
       <button class="btn btn-logout hidden" id="logout-btn">Log Out</button>
     </div>
@@ -125,14 +125,10 @@
       <div class="modal-card">
         <span class="close-x" id="close-modal-btn">&times;</span>
 
-        <div class="tabs">
-          <div class="tab active" id="tab-login" onclick="switchTab('login')">
-            Sign In
-          </div>
-          <div class="tab" id="tab-signup" onclick="switchTab('signup')">
-            Sign Up
-          </div>
-        </div>
+        <h2 class="modal-title">Access Your Account</h2>
+        <p style="color: #666; font-size: 14px; margin-bottom: 25px">
+          Sign in or create a new account in one step.
+        </p>
 
         <div id="google-btn-wrapper">
           <div id="google-signin-btn"></div>
@@ -145,9 +141,6 @@
       let accessToken = null;
       let refreshToken = null;
 
-      // 💡 Crucial Variable: Tracks if the user clicked "Sign In" or "Sign Up"
-      let authMode = "login";
-
       // UI Element Selectors
       const authModal = document.getElementById("auth-modal");
       const openAuthBtn = document.getElementById("open-auth-btn");
@@ -158,18 +151,6 @@
       openAuthBtn.onclick = () => authModal.classList.add("active");
       closeModalBtn.onclick = () => authModal.classList.remove("active");
 
-      // Updates mode state toggle asynchronously when tabs are switched
-      function switchTab(mode) {
-        authMode = mode;
-        if (mode === "login") {
-          document.getElementById("tab-login").classList.add("active");
-          document.getElementById("tab-signup").classList.remove("active");
-        } else {
-          document.getElementById("tab-login").classList.remove("active");
-          document.getElementById("tab-signup").classList.add("active");
-        }
-      }
-
       window.onload = function () {
         // Initialize the Google client once on page boot
         google.accounts.id.initialize({
@@ -178,32 +159,25 @@
           callback: handleGoogleCredentialResponse,
         });
 
-        // Render the initial button state
-        renderDynamicGoogleButton("signin_with");
-      };
-
-      // 💡 New helper function to clear and redraw the button layout on demand
-      function renderDynamicGoogleButton(buttonTextType) {
+        // Render the unified "Continue with Google" button
         const container = document.getElementById("google-signin-btn");
-        container.innerHTML = ""; // Clear the old button style layout entirely
-
         google.accounts.id.renderButton(container, {
           theme: "outline",
           size: "large",
           width: "100%",
-          text: buttonTextType, // Can be 'signin_with' or 'signup_with'
+          text: "continue_with", // Standard Google text for unified flows
         });
-      }
+      };
 
       // Handles the safe data payload pass back to Express Router
       async function handleGoogleCredentialResponse(response) {
         const res = await fetch(`${API_URL}/google`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          // 💡 Sends BOTH the token AND the state mode parameter (login/signup)
+          // 💡 Mode is now set to 'unified' to tell the backend to find-or-create
           body: JSON.stringify({
             idToken: response.credential,
-            mode: authMode,
+            mode: "unified",
           }),
         });
         const data = await res.json();
@@ -226,6 +200,7 @@
         // Redirect to success page (auto-redirects to dashboard after 3s)
         window.location.href = "/success.html";
       }
+
       async function fetchProtectedProfile() {
         const res = await fetch(`${API_URL}/profile`, {
           headers: { Authorization: `Bearer ${accessToken}` },
